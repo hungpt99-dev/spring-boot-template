@@ -1,0 +1,28 @@
+# Local development: full stack via compose.yaml.
+# Run: docker compose up -d && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+spring:
+  config:
+    activate:
+      on-profile: local
+
+app:
+  modules:
+    persistence.enabled: true
+    redis.enabled: true
+    kafka.enabled: true
+    outbox.enabled: true
+    # security.enabled stays false locally unless testing JWT:
+    # security.enabled: true
+    resilience.enabled: true
+  kafka:
+    consumer:
+      enabled: true
+
+logging:
+  level:
+    com.company: DEBUG
+
+management:
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,5 @@
+#!/bin/sh
+# pre-push: unit/slice/architecture tests (no Docker needed). Full gates run in CI.
+set -eu
+ROOT="$(git rev-parse --show-toplevel)"
+sh "$ROOT/scripts/test.sh"

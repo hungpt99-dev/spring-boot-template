@@ -1,0 +1,161 @@
+# Company-standard defaults. Lightweight first: zero infrastructure required.
+# Enable a capability by flipping ONE flag under app.modules; the module's
+# beans activate and (for persistence/redis/kafka) the matching Boot
+# auto-configurations are un-excluded by ModularEnvironmentPostProcessor.
+# Env-var form: APP_MODULES_PERSISTENCE_ENABLED=true (relaxed binding).
+
+spring:
+  application:
+    name: microservice-template
+  threads:
+    virtual:
+      enabled: true # Java 21 virtual threads for Tomcat + @Async
+  # Jackson 3 (tools.jackson) writes ISO-8601 dates by default; no customization needed.
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  # --- Persistence module (only used when app.modules.persistence.enabled=true) ---
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/app}
+    username: ${DB_USER:app}
+    password: ${DB_PASSWORD:change-me}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 2
+      connection-timeout: 3000
+      max-lifetime: 600000
+  jpa:
+    hibernate:
+      ddl-auto: validate # schema is owned by Flyway, never by Hibernate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: public
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  # --- Cache module (only used when app.modules.redis.enabled=true) ---
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+  # --- Messaging module (only used when app.modules.kafka.enabled=true) ---
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      enable-idempotence: true
+      retries: 3
+      compression-type: snappy
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        delivery.timeout.ms: 30000
+        max.in.flight.requests.per.connection: 5
+  # --- Security module (only used when app.modules.security.enabled=true) ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:}
+
+server:
+  shutdown: graceful # SIGTERM drains in-flight requests before close
+
+app:
+  api:
+    version: v1
+  modules:
+    persistence.enabled: false # JPA + Flyway + PostgreSQL (needs spring.datasource.url)
+    redis.enabled: false        # Redis cache backend
+    kafka.enabled: false        # Kafka producer
+    security.enabled: false     # OAuth2 JWT resource server (needs issuer-uri)
+    resilience.enabled: false   # Resilience4j retry/circuit-breaker decorators
+    outbox.enabled: false       # Transactional outbox (needs persistence + kafka)
+    idempotency.enabled: true   # Idempotency-Key filter (in-memory, no infra)
+    docs.enabled: true          # OpenAPI + Swagger UI (read-only)
+  outbox:
+    poll-interval: 5s           # Relay polling delay
+    batch-size: 50
+    max-attempts: 10            # Rows past this need operator attention
+    send-timeout: 10s
+  idempotency:
+    ttl: 24h
+  cache:
+    default-ttl: 10m
+  messaging:
+    product-created-topic: products.events.v1
+  # Sample consumer (adapter/in/messaging). Default off; set true to tail the topic.
+  kafka:
+    consumer:
+      enabled: false
+
+# --- Docs bridge: springdoc follows the module flag ---
+springdoc:
+  api-docs:
+    enabled: ${app.modules.docs.enabled:true}
+  swagger-ui:
+    enabled: ${app.modules.docs.enabled:true}
+    path: /swagger-ui.html
+
+# --- Resilience defaults (only applied when resilience module enabled) ---
+resilience4j:
+  retry:
+    instances:
+      products:
+        max-attempts: 3
+        wait-duration: 200ms
+        enable-metrics: true
+  circuitbreaker:
+    instances:
+      products:
+        sliding-window-size: 20
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        enable-metrics: true
+
+# --- Observability (always on, exporters conditional on endpoint presence) ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true # Kubernetes liveness/readiness groups (defaults include db/redis/kafka when enabled)
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:0.1}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:}
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: 1.0.0-SNAPSHOT
+
+# --- Logging: structured ECS to console (trace/correlation ids included via tracing + MDC) ---
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    com.company: INFO
+    org.springframework.kafka: WARN

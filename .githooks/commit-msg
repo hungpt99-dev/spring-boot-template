@@ -1,0 +1,12 @@
+#!/bin/sh
+# commit-msg: enforce Conventional Commits (see .gitmessage). Thin by design.
+set -eu
+MSG_FILE="$1"
+FIRST_LINE="$(head -n 1 "$MSG_FILE" | sed 's/#.*//')"
+if ! echo "$FIRST_LINE" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?(!)?: .[^ ]'; then
+  echo "ERROR: commit message must be Conventional Commits, e.g.:"
+  echo "  feat(api): add product search"
+  echo "  fix(outbox): retry poison rows with backoff"
+  echo "got: $FIRST_LINE"
+  exit 1
+fi

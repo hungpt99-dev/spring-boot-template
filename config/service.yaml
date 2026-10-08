@@ -1,0 +1,10 @@
+# Service ownership metadata. Read by humans, agents, and platform automation
+# (dashboards, on-call routing, scaffolding). init.sh writes name/description/
+# domain/owner from its flags; type/tier stay as classified.
+service:
+  name: microservice-template
+  description: Company-standard Spring Boot microservice template instance
+  domain: platform
+  owner: platform-team
+  type: microservice
+  tier: standard

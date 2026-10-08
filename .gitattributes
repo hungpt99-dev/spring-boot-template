@@ -1,0 +1,20 @@
+# Normalize line endings: Java + scripts stay LF everywhere.
+* text=auto
+*.java text eol=lf diff=java
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.gitmessage text eol=lf
+.editorconfig text eol=lf
+Dockerfile text eol=lf
+mvnw text eol=lf
+.githooks/* text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.jar binary
+*.zip binary

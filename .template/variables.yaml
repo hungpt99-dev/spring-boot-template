@@ -1,0 +1,44 @@
+# Centralized template variables. init.sh reads defaults + patterns from here
+# (constrained flat format: `- name:` block, single-line `default:`/`pattern:`).
+# Add a variable here AND a transformation in scripts/template-vars.sh.
+variables:
+  - name: service-name
+    default: payment-service
+    pattern: ^[a-z0-9]+(-[a-z0-9]+)*$
+    required: true
+    description: Service/repo name (lowercase-hyphens). Used for artifactId, k8s names, image.
+  - name: group-id
+    default: com.company
+    pattern: ^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$
+    required: true
+    description: Maven groupId; the Java package must start with it.
+  - name: package-name
+    default: ""
+    pattern: ^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$
+    required: true
+    description: Root Java package. Empty means derived from group-id + service-name (dashes become dots).
+  - name: description
+    default: ""
+    pattern: .*
+    required: false
+    description: Maven description and service.yaml blurb. Default derives from title.
+  - name: main-class
+    default: ""
+    pattern: ^[A-Z][A-Za-z0-9]*$
+    required: false
+    description: Application class. Default derives from service-name + Application.
+  - name: title
+    default: ""
+    pattern: .*
+    required: false
+    description: Human title for README. Default derives from service-name.
+  - name: domain
+    default: platform
+    pattern: ^[a-z0-9]+(-[a-z0-9]+)*$
+    required: false
+    description: Business domain for service.yaml (ownership metadata).
+  - name: owner
+    default: platform-team
+    pattern: ^[a-z0-9-]+$
+    required: false
+    description: Owning team for service.yaml and CODEOWNERS.

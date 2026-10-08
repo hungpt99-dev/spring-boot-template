@@ -1,0 +1,16 @@
+# Template metadata. Read by automation and init.sh (informational fields).
+name: microservice-template
+description: Company-standard, AI-friendly Spring Boot microservice starting point
+language: java
+build: maven
+java_version: "21"
+spring_boot_version: 4.1.1
+content_layers:
+  - runtime      # code/config the generated service runs (src/, config/, Dockerfile)
+  - foundation   # scripts (minus engine), hooks, CI, quality, security, docs, standards
+  - engine       # .template/, scripts/{init,template-vars,check-template,validate-template}.sh
+                 # — REMOVED on init
+compatibility:
+  min_java: "21"
+  min_maven: "3.9"
+  needs_docker_for: integration tests

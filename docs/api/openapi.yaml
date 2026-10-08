@@ -1,0 +1,151 @@
+# OpenAPI skeleton for new services. The template generates its live spec from
+# code (springdoc, /v3/api-docs); this file is the CONTRACT SHAPE to copy
+# when designing a real resource: paths, ProblemDetail errors, pagination,
+# Idempotency-Key. Replace `product` with the service's resource.
+openapi: 3.1.0
+info:
+  title: <Service> API
+  version: v1
+  description: Company-standard microservice API. Error model: RFC 9457 Problem Details.
+paths:
+  /api/v1/products:
+    get:
+      summary: List products
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Page of products (stable server-defined order)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      summary: Create a product
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/v1/products/{id}:
+    get:
+      summary: Get a product by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: UUID per unsafe request; repeats replay the stored response.
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CreateProductRequest:
+      type: object
+      required: [name, priceCents]
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        priceCents:
+          type: integer
+          minimum: 0
+          description: Money in minor units, never floats.
+    Product:
+      type: object
+      required: [id, name, priceCents, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        priceCents:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+    Problem:
+      type: object
+      required: [title, status, code]
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          type: string
+          description: Stable machine code (TEMPLATE_*). `detail` is human text and may change.
+          example: TEMPLATE_NOT_FOUND
+        correlationId:
+          type: string
+  responses:
+    BadRequest:
+      description: Validation or bad request (TEMPLATE_VALIDATION_FAILED / TEMPLATE_BAD_REQUEST)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Not found (TEMPLATE_NOT_FOUND)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problem'

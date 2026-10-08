@@ -1,0 +1,3 @@
+# Module gate: excludes auto-configurations of disabled modules before Boot starts.
+org.springframework.boot.EnvironmentPostProcessor=\
+com.company.template.common.modules.ModularEnvironmentPostProcessor

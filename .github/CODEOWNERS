@@ -1,0 +1,5 @@
+# Company teams own every path by default; service repos replace these handles.
+* @platform-team
+/docs/ @platform-team @docs-team
+.github/ @platform-team
+scripts/ @platform-team

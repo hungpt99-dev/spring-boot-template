@@ -1,0 +1,30 @@
+name: ci
+on:
+  push: {branches: [main]}
+  pull_request: {}
+permissions: {contents: read}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: "21", cache: maven}
+      - name: Full gate (format, checkstyle, tests, JaCoCo 70%, SBOM)
+        run: sh scripts/verify.sh
+      - name: Coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: jacoco, path: target/site/jacoco/}
+      - name: SBOM (CycloneDX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: sbom, path: target/bom.json}
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with: {scan-type: fs, scan-ref: ".", severity: HIGH,CRITICAL, exit-code: "1"}
+      - name: Docker build (no push on PR)
+        run: docker build -t microservice-template:${{ github.sha }} .

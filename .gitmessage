@@ -1,0 +1,5 @@
+# <type>(<scope>): <short summary, max 72 chars>
+# Types: feat fix docs style refactor perf test build ci chore revert
+# Example: feat(api): add product search endpoint
+#
+# Body (why, not what). Footer: Refs: #123 / Breaking-Change: ...
