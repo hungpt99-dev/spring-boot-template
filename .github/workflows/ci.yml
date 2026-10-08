@@ -24,7 +24,7 @@ jobs:
       - name: Gitleaks secret scan
         uses: gitleaks/gitleaks-action@v2
       - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with: {scan-type: fs, scan-ref: ".", severity: HIGH,CRITICAL, exit-code: "1"}
       - name: Docker build (no push on PR)
         run: docker build -t microservice-template:${{ github.sha }} .
