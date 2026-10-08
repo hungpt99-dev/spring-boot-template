@@ -7,7 +7,7 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests package \
  && java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
 
-FROM eclipse-temurin:21-jre-jammy AS runtime
+FROM eclipse-temurin:25-jre-jammy AS runtime
 RUN groupadd -r app && useradd -r -g app appuser
 WORKDIR /app
 COPY --from=build --chown=appuser:app /workspace/target/extracted/dependencies/ ./
