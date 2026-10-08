@@ -15,11 +15,11 @@ jobs:
         run: sh scripts/verify.sh
       - name: Coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with: {name: jacoco, path: target/site/jacoco/}
       - name: SBOM (CycloneDX)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with: {name: sbom, path: target/bom.json}
       - name: Gitleaks secret scan
         uses: gitleaks/gitleaks-action@v2
