@@ -26,7 +26,7 @@
     <!-- Versions NOT managed by Spring Boot BOM (pinned deliberately) -->
     <springdoc.version>3.1.1</springdoc.version>
     <resilience4j.version>2.4.0</resilience4j.version>
-    <archunit.version>1.4.1</archunit.version>
+    <archunit.version>1.5.1</archunit.version>
     <!-- Pinned: no longer managed by Spring Boot 4.x parent -->
     <jacoco.version>0.8.13</jacoco.version>
     <spring-javaformat.version>0.0.48</spring-javaformat.version>
