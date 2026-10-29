@@ -24,7 +24,7 @@
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Versions NOT managed by Spring Boot BOM (pinned deliberately) -->
-    <springdoc.version>3.1.1</springdoc.version>
+    <springdoc.version>3.2.0</springdoc.version>
     <resilience4j.version>2.4.0</resilience4j.version>
     <archunit.version>1.4.1</archunit.version>
     <!-- Pinned: no longer managed by Spring Boot 4.x parent -->
